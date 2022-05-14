@@ -1,0 +1,86 @@
+html,
+body {
+  background-color: rgb(41, 36, 36);
+  height: 100%;
+}
+
+.container {
+    margin: 0 auto;
+    width: 50%;
+    
+    position: relative;
+    display: grid;
+
+    grid-template-columns: repeat(7, 120px);
+    grid-template-rows: repeat(5, 168px);
+    grid-column-gap: 10px;
+    grid-row-gap: 30px; 
+
+    background-color: rgb(56, 55, 53);
+    border-radius: 54px;
+    padding: 43px;
+}
+
+
+#player_cards {
+    height: 43px;
+    width: 100%
+}
+
+#player2 {
+    display: grid;
+    grid-auto-flow: column;
+    min-width: auto;
+}    
+
+#player1 {
+    display: grid;
+    grid-auto-flow: column;
+    min-width: auto;
+    grid-column: 4;
+    grid-row: 5;
+}
+
+#cards_left {
+    grid-column: 1;
+    grid-row: 2;
+    align-self:flex-end;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#played_cards {
+    grid-column: 4;
+    grid-row: 3;
+    position: relative;
+    display: grid;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.295);
+}
+
+#stack {
+    grid-column: 1;
+    grid-row: 3;
+    position: relative;
+    display: grid;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.295);
+}
+
+.cards {
+    height: 100%;
+    transition: 0.15s all ease;
+}
+
+.container > .cards {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.295);
+}
+
+.hand {
+    width: 23px;
+    transition: width 0.1s;
+}
+
+.card_in_hand {
+    width: 120px;
+    transition: width 0.1s;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.295);
+}
