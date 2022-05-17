@@ -129,7 +129,7 @@ function placeCardOnTable(column, row, card) {
     img.player = currentPlayer;
     img.card = card;
 
-    //img.addEventListener("click", useCard);
+    img.addEventListener("click", useCard);
 
     document.getElementsByClassName("container")[0].appendChild(img);
 }
@@ -205,23 +205,23 @@ function checkValidMoveExists() {
 }
 
 function addCardToPlayer(player, card) {
-        var img = document.createElement("img");
-        img.src = "resources/PNG-cards-1.3/" + card.image + ".png";
-        img.className = "card_in_hand";
-        img.id = card.suit + card.value;
+    var img = document.createElement("img");
+    img.src = "resources/PNG-cards-1.3/" + card.image + ".png";
+    img.className = "card_in_hand";
+    img.id = card.suit + card.value;
 
-        var span = document.createElement("span");
-        span.className = "hand";
-        span.player = player;
-        span.card = card;
-        span.addEventListener("mouseover", preview);
-        span.addEventListener("mouseout", stopPreview);
-        span.addEventListener("click", useCard);
+    var span = document.createElement("span");
+    span.className = "hand";
+    span.player = player;
+    span.card = card;
+    span.addEventListener("mouseover", preview);
+    span.addEventListener("mouseout", stopPreview);
+    span.addEventListener("click", useCard);
 
-        player.hand.push(card);
-        document.getElementById(player.name).appendChild(span);
+    player.hand.push(card);
+    document.getElementById(player.name).appendChild(span);
 
-        span.appendChild(img);
+    span.appendChild(img);
 }
 
 /*/ Source: https://stackoverflow.com/a/40997543/10223638 /*/
@@ -244,13 +244,14 @@ function moveToElementPosition(elementID, targetElementID, card) {
 
 function useCard(e) {
     var card = convertToObject(e.originalTarget.id);
-    console.log(e);
 
     if (checkCard(card, true)) {
         // Push card into used cards
         played_cards.push(card);
 
-        addCardToPlayer(e.currentTarget.player, takeCard());
+        if (currentPlayer.hand.length <= 3 && deck.length != 0) {
+            addCardToPlayer(e.currentTarget.player, takeCard());
+        }
 
         moveToElementPosition(e.originalTarget.parentElement, '#played_cards', card);
 
@@ -268,6 +269,11 @@ function useCard(e) {
         } else {
             makemove();
         }
+
+        tries = 0;
+    } else if(deck.length == 0) {
+        returnDeck(currentPlayer);
+        switchPlayer();
     }
 }
 
@@ -329,10 +335,9 @@ function initCards(player, index) {
 function addClickListener() {
     document.getElementById("stack").addEventListener("click", function() {
         if (checkValidMoveExists()) {
-            if(tries > 3) {
+            if (tries > 2) {
                 returnDeck(currentPlayer);
                 switchPlayer();
-
                 tries = 0;
             } else {
                 addCardToPlayer(currentPlayer, takeCard())
@@ -357,8 +362,12 @@ function switchPlayer() {
     }
 }
 
-function enabletable() {
-
+function enabletable(tof) {
+    if (tof == false) {
+        document.querySelector(".container > img").style.pointerEvents = "none";
+    } else {
+        document.querySelector(".container > img").style.pointerEvents = "all";
+    }
 }
 
 function setup() {
