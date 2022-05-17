@@ -31,6 +31,8 @@ body {
     display: grid;
     grid-auto-flow: column;
     min-width: auto;
+    grid-column: 4;
+    grid-row: 1;
 }    
 
 #player1 {

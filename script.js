@@ -1,10 +1,21 @@
 var deck = [];
 var cards = [];
 var played_cards = [];
-var currentPlayer;
+var stage = 0;
+var currentPlayer = "";
+var player1;
+var player2;
 var suits = ["spades", "diamonds", "clubs", "hearts"];
 var values = ["ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"];
 
+/**
+ * Class to create card objects
+ *
+ * @param {string} suit The card suit
+ * @param {string} color The card color (red / black)
+ * @param {string} value The value of the card 
+ * @param {string} image The image
+ */
 class card {
     constructor(suit, color, value, image) {
         this.id = suit + value;
@@ -15,6 +26,11 @@ class card {
     }
 }
 
+/**
+ * Class to create card objects
+ *
+ * @param {string} name 
+ */
 class player {
     constructor(name) {
         this.name = name;
@@ -23,6 +39,9 @@ class player {
     }
 }
 
+/**
+ * Previews the played cards
+ */
 $("#played_cards").mouseover(function() {
     var i = 0;
     var j = 0;
@@ -35,6 +54,9 @@ $("#played_cards").mouseover(function() {
     })
 })
 
+/**
+ * Cancels preview of played cards
+ */
 $("#played_cards").mouseout(function() {
     var i = 0;
     $('img', $('#played_cards')).each(function() {
@@ -42,6 +64,9 @@ $("#played_cards").mouseout(function() {
     })
 })
 
+/**
+ * Generates a set of cards
+ */
 function generateCards() {
     var tempcards = [];
 
@@ -58,15 +83,24 @@ function generateCards() {
     return tempcards;
 }
 
+/**
+ * Takes a card from the deck
+ */
 function takeCard() {
     var card = deck.shift();
     document.getElementById("cards_left").innerHTML = "Cards: " + deck.length;
     return card;
 }
 
+/**
+ * Shuffles the deck
+ * 
+ * @param {string} deck The array to shuffle
+ * @returns {array} The shuffled deck 
+ */
 /*/ Source: https://stackoverflow.com/a/46545530/10223638 /*/
-function shuffleCards(e) {
-    let shuffled = e
+function shuffleCards(deck) {
+    let shuffled = deck
         .map(value => ({ value, sort: Math.random() }))
         .sort((a, b) => a.sort - b.sort)
         .map(({ value }) => value)
@@ -74,13 +108,24 @@ function shuffleCards(e) {
     return shuffled;
 }
 
-function placeCard(column, row, card) {
+/**
+ * Place a card on the table
+ * 
+ * @param {string} column 
+ * @param {string} row
+ * @param {object} card
+ */
+function placeCardOnTable(column, row, card) {
     var img = document.createElement("img");
     img.src = "resources/PNG-cards-1.3/" + card.image + ".png";
     img.className = "cards";
     img.id = card.suit + card.value;
     img.style.gridColumn = column;
     img.style.gridRow = row;
+    img.player = currentPlayer;
+    img.card = card;
+    
+    //img.addEventListener("click", useCard);
 
     document.getElementsByClassName("container")[0].appendChild(img);
 }
@@ -197,14 +242,13 @@ function moveToElementPosition(elementID, targetElementID, card) {
 
 function useCard(e) {
     var card = convertToObject(e.originalTarget.id);
+    console.log(e);
 
     if (checkCard(card, true)) {
         // Push card into used cards
         played_cards.push(card);
 
         addCardToPlayer(e.currentTarget.player, takeCard());
-
-        // Remove the span
 
         moveToElementPosition(e.originalTarget.parentElement, '#played_cards', card);
 
@@ -216,9 +260,9 @@ function useCard(e) {
                 hand.splice(i, 1)
             }
         }
-    }
 
-    console.log(e.currentTarget.player);
+        switchPlayer();
+    }
 }
 
 function returnDeck(player) {
@@ -268,7 +312,7 @@ function initCards(player, index) {
     for (var i = 0; i <= 2; i++) {
         for (var j = 0; j < 2; j++) {
             player.table[i] = takeCard();
-            placeCard(3 + i, index + 2, player.table[i])
+            placeCardOnTable(3 + i, index + 2, player.table[i])
         }
         hideCard(player.table[i]);
     }
@@ -282,14 +326,33 @@ function addClickListener() {
     });
 }
 
+function switchPlayer() {
+    if(currentPlayer == player1) {
+        currentPlayer = player2
+        makemove();
+    } else {
+        currentPlayer = player1;
+    }
+
+    if(currentPlayer.hand.length == 0 && deck.length == 0) {
+        enabletable(true);
+    } else {
+        enabletable(false);
+    }
+}
+
+function enabletable() {
+    
+}
+
 function setup() {
     deck = shuffleCards(generateCards());
     cards = deck.slice();
 
-    var player1 = new player("player1");
+    player1 = new player("player1");
     initCards(player1, 0);
 
-    var player2 = new player("player2");
+    player2 = new player("player2");
     initCards(player2, 2);
 
     addDeck();
@@ -299,5 +362,9 @@ function setup() {
 
     for (var i = 0; i < 3; i++) {
         addCardToPlayer(player1, takeCard());
+    }
+
+    for (var i = 0; i < 3; i++) {
+        addCardToPlayer(player2, takeCard());
     }
 }
