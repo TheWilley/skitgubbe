@@ -2,6 +2,7 @@ var deck = [];
 var cards = [];
 var played_cards = [];
 var stage = 0;
+var tries = 0;
 var currentPlayer = "";
 var player1;
 var player2;
@@ -87,9 +88,12 @@ function generateCards() {
  * Takes a card from the deck
  */
 function takeCard() {
-    var card = deck.shift();
-    document.getElementById("cards_left").innerHTML = "Cards: " + deck.length;
-    return card;
+    if (deck.length != 0) {
+        var card = deck.shift();
+        document.getElementById("cards_left").innerHTML = "Cards: " + deck.length;
+        document.getElementById("stack").childNodes[0].remove();
+        return card;
+    }
 }
 
 /**
@@ -124,7 +128,7 @@ function placeCardOnTable(column, row, card) {
     img.style.gridRow = row;
     img.player = currentPlayer;
     img.card = card;
-    
+
     //img.addEventListener("click", useCard);
 
     document.getElementsByClassName("container")[0].appendChild(img);
@@ -201,7 +205,6 @@ function checkValidMoveExists() {
 }
 
 function addCardToPlayer(player, card) {
-    if (deck.length != 0) {
         var img = document.createElement("img");
         img.src = "resources/PNG-cards-1.3/" + card.image + ".png";
         img.className = "card_in_hand";
@@ -219,7 +222,6 @@ function addCardToPlayer(player, card) {
         document.getElementById(player.name).appendChild(span);
 
         span.appendChild(img);
-    }
 }
 
 /*/ Source: https://stackoverflow.com/a/40997543/10223638 /*/
@@ -261,14 +263,20 @@ function useCard(e) {
             }
         }
 
-        switchPlayer();
+        if (parseInt(card.value) != 2 && parseInt(card.value) !== 10) {
+            switchPlayer();
+        } else {
+            makemove();
+        }
     }
 }
 
 function returnDeck(player) {
     for (var i = 0; i < played_cards.length; i++) {
-        player.hand.push(played_cards[i]);
+        addCardToPlayer(player, played_cards[i]);
     }
+    document.getElementById("played_cards").innerHTML = "";
+    played_cards = [];
 }
 
 function convertToObject(e) {
@@ -321,20 +329,28 @@ function initCards(player, index) {
 function addClickListener() {
     document.getElementById("stack").addEventListener("click", function() {
         if (checkValidMoveExists()) {
-            addCardToPlayer(currentPlayer, takeCard())
+            if(tries > 3) {
+                returnDeck(currentPlayer);
+                switchPlayer();
+
+                tries = 0;
+            } else {
+                addCardToPlayer(currentPlayer, takeCard())
+                tries++;
+            }
         }
     });
 }
 
 function switchPlayer() {
-    if(currentPlayer == player1) {
+    if (currentPlayer == player1) {
         currentPlayer = player2
         makemove();
     } else {
         currentPlayer = player1;
     }
 
-    if(currentPlayer.hand.length == 0 && deck.length == 0) {
+    if (currentPlayer.hand.length == 0 && deck.length == 0) {
         enabletable(true);
     } else {
         enabletable(false);
@@ -342,22 +358,21 @@ function switchPlayer() {
 }
 
 function enabletable() {
-    
+
 }
 
 function setup() {
     deck = shuffleCards(generateCards());
     cards = deck.slice();
 
+    addDeck();
+    addClickListener();
+
     player1 = new player("player1");
     initCards(player1, 0);
 
     player2 = new player("player2");
     initCards(player2, 2);
-
-    addDeck();
-    addClickListener();
-
     currentPlayer = player1;
 
     for (var i = 0; i < 3; i++) {
